@@ -3,13 +3,11 @@ import confetti from 'canvas-confetti';
 import { 
   AlertTriangle, 
   CheckCircle, 
-  X,
-  ArrowRight
+  X
 } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
 import { DropzoneCard } from './components/DropzoneCard';
 import { StatsBento } from './components/StatsBento';
-import { RulesCard } from './components/RulesCard';
 import { UploadedFilesList } from './components/UploadedFilesList';
 import { DataPreviewTable } from './components/DataPreviewTable';
 import { 
@@ -17,10 +15,7 @@ import {
   mergeParsedFiles, 
   downloadMergedExcel, 
   downloadMergedCsv,
-  createDemoFiles,
-  ParsedFileResult,
-  DISPLAY_EXCLUDED_COLUMNS,
-  DISPLAY_KEPT_COLUMNS
+  ParsedFileResult
 } from './utils/excelMerger';
 
 export default function App() {
@@ -80,27 +75,6 @@ export default function App() {
     setTimeout(() => setSuccessToast(null), 3000);
   };
 
-  // Load demo sample data
-  const handleLoadDemo = async () => {
-    setIsProcessing(true);
-    setErrorMessage(null);
-    try {
-      const demoFiles = createDemoFiles();
-      const demoParsed: ParsedFileResult[] = [];
-      for (const file of demoFiles) {
-        const parsed = await parseExcelFile(file);
-        demoParsed.push(parsed);
-      }
-      setParsedFiles(demoParsed);
-      setSuccessToast('3 File Demo berhasil dimuat!');
-      setTimeout(() => setSuccessToast(null), 4000);
-    } catch (err: any) {
-      setErrorMessage('Gagal memuat file demo.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   // Trigger celebration confetti
   const fireConfetti = () => {
     try {
@@ -111,7 +85,7 @@ export default function App() {
         colors: ['#FEF08A', '#FBCFE8', '#BBF7D0', '#BAE6FD', '#111111'],
       });
     } catch (e) {
-      // ignore in environments where canvas is unavailable
+      // ignore
     }
   };
 
@@ -160,7 +134,6 @@ export default function App() {
         onDownload={handleDownloadExcel}
         onDownloadCsv={handleDownloadCsv}
         onClearAll={handleClearAll}
-        onLoadDemo={handleLoadDemo}
         hasFiles={parsedFiles.length > 0}
         totalRows={totalRows}
         totalFiles={parsedFiles.length}
@@ -184,7 +157,7 @@ export default function App() {
               Penggabung File Excel Kantor Pertanahan
             </h2>
             <p className="text-xs md:text-sm text-zinc-600 font-semibold mt-0.5">
-              Otomatis membersihkan kolom Luas_Peta, Validator, Blokir, dan Pemilik menjadi satu lembar kerja siap olah.
+              Gabungkan berkas Excel menjadi satu dokumen bersih secara otomatis.
             </p>
           </div>
 
@@ -243,17 +216,10 @@ export default function App() {
           <StatsBento
             totalFiles={parsedFiles.length}
             totalRows={totalRows}
-            removedColumnsCount={DISPLAY_EXCLUDED_COLUMNS.length}
-            keptColumnsCount={DISPLAY_KEPT_COLUMNS.length}
           />
         </section>
 
-        {/* Bento Grid Row 3: Column Filtering Transformation Schema Card */}
-        <section>
-          <RulesCard />
-        </section>
-
-        {/* Bento Grid Row 4: Uploaded Files Management (if any) */}
+        {/* Bento Grid Row 3: Uploaded Files Management (if any) */}
         {parsedFiles.length > 0 && (
           <section>
             <UploadedFilesList
@@ -264,7 +230,7 @@ export default function App() {
           </section>
         )}
 
-        {/* Bento Grid Row 5: Live Interactive Data Preview Table */}
+        {/* Bento Grid Row 4: Live Interactive Data Preview Table */}
         <section>
           <DataPreviewTable
             headers={headers}
@@ -274,25 +240,6 @@ export default function App() {
             hasFiles={parsedFiles.length > 0}
           />
         </section>
-
-        {/* Bento Bottom Info Card */}
-        <footer className="pt-6 pb-8 border-t-2 border-brutal-dark flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-zinc-600">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-brutal-green border border-brutal-dark" />
-            <span>Format BPN Kantah: Nomor_Hak, Surat_Ukur, NIB, Luas, Produk, KW, Tipe_Hak</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a 
-              href="https://github.com/bagasdwisss/convertexcel" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-brutal-dark hover:underline flex items-center gap-1 font-black"
-            >
-              GitHub Repository
-              <ArrowRight className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        </footer>
       </main>
     </div>
   );

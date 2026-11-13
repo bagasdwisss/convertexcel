@@ -60,7 +60,7 @@ export const DataPreviewTable: React.FC<DataPreviewTableProps> = ({
             Pratinjau Data Gabungan Belum Tersedia
           </h4>
           <p className="text-xs text-zinc-500 font-medium max-w-md mx-auto">
-            Unggah file Excel di atas atau klik tombol <strong>"COBA DEMO"</strong> di bilah samping kiri untuk melihat pratinjau hasil penggabungan secara instan.
+            Unggah file Excel Anda di area atas untuk melihat pratinjau hasil penggabungan secara otomatis.
           </p>
         </div>
       </div>
