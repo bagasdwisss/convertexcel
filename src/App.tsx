@@ -14,7 +14,7 @@ import {
   parseExcelFile, 
   mergeParsedFiles, 
   downloadMergedExcel, 
-  downloadMergedCsv,
+  downloadMergedPdf,
   ParsedFileResult
 } from './utils/excelMerger';
 
@@ -107,8 +107,8 @@ export default function App() {
     }
   };
 
-  // Download Merged CSV
-  const handleDownloadCsv = () => {
+  // Download Merged PDF
+  const handleDownloadPdf = () => {
     if (parsedFiles.length === 0 || rows.length === 0) {
       setErrorMessage('Tidak ada data untuk diunduh.');
       return;
@@ -116,12 +116,12 @@ export default function App() {
 
     try {
       const finalName = customFileName.trim() || 'Hasil_Gabungan_Excel';
-      downloadMergedCsv(headers, rows, finalName);
+      downloadMergedPdf(headers, rows, finalName);
       fireConfetti();
-      setSuccessToast(`File CSV "${finalName}.csv" berhasil diunduh!`);
+      setSuccessToast(`File PDF "${finalName}.pdf" berhasil diunduh!`);
       setTimeout(() => setSuccessToast(null), 5000);
     } catch (err: any) {
-      setErrorMessage(`Gagal mengunduh CSV: ${err?.message || 'Error tidak diketahui'}`);
+      setErrorMessage(`Gagal mengunduh PDF: ${err?.message || 'Error tidak diketahui'}`);
     }
   };
 
@@ -132,7 +132,7 @@ export default function App() {
         customFileName={customFileName}
         setCustomFileName={setCustomFileName}
         onDownload={handleDownloadExcel}
-        onDownloadCsv={handleDownloadCsv}
+        onDownloadPdf={handleDownloadPdf}
         onClearAll={handleClearAll}
         hasFiles={parsedFiles.length > 0}
         totalRows={totalRows}
@@ -236,7 +236,7 @@ export default function App() {
             headers={headers}
             rows={rows}
             onDownload={handleDownloadExcel}
-            onDownloadCsv={handleDownloadCsv}
+            onDownloadPdf={handleDownloadPdf}
             hasFiles={parsedFiles.length > 0}
           />
         </section>

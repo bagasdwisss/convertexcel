@@ -3,14 +3,14 @@ import {
   FileSpreadsheet, 
   Download, 
   Trash2, 
-  FileCheck
+  FileText
 } from 'lucide-react';
 
 interface SidebarProps {
   customFileName: string;
   setCustomFileName: (name: string) => void;
   onDownload: () => void;
-  onDownloadCsv: () => void;
+  onDownloadPdf: () => void;
   onClearAll: () => void;
   hasFiles: boolean;
   totalRows: number;
@@ -22,7 +22,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   customFileName,
   setCustomFileName,
   onDownload,
-  onDownloadCsv,
+  onDownloadPdf,
   onClearAll,
   hasFiles,
   isProcessing
@@ -90,12 +90,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
 
           <button
-            onClick={onDownloadCsv}
+            onClick={onDownloadPdf}
             disabled={!hasFiles || isProcessing}
             className="w-full brutal-btn bg-white hover:bg-zinc-100 text-brutal-dark py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            <FileCheck className="w-4 h-4 stroke-[2.5]" />
-            <span>DOWNLOAD SEBAGAI CSV</span>
+            <FileText className="w-4 h-4 text-red-600 stroke-[2.5]" />
+            <span>DOWNLOAD SEBAGAI PDF</span>
           </button>
 
           {hasFiles && (

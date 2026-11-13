@@ -13,8 +13,7 @@ Dirancang dengan gaya visual **Soft Neo-Brutalism (Playful Neubrutalism)**, tata
 - **Kustomisasi Penamaan File**: Pengguna bebas menentukan nama file hasil gabungan sebelum mengunduh.
 - **Pratinjau Data Interaktif (Live Preview)**: Tabel pratinjau langsung lengkap dengan pencarian nomor hak / NIB dan paginasi.
 - **100% Client-Side & Aman**: Seluruh pemrosesan berkas dilakukan langsung di browser Anda menggunakan SheetJS (`xlsx`). Tidak ada berkas yang dikirim ke server luar, menjaga kerahasiaan data pertanahan.
-- **Export Multi-Format**: Mendukung ekspor ke format Excel (`.xlsx`) dan file teks terpisah koma (`.csv`).
-- **Mode Uji Coba Demo**: Tersedia tombol "COBA DEMO" untuk langsung mencoba penggabungan dengan berkas dummy tanpa perlu menyiapkan berkas manual.
+- **Export Multi-Format**: Mendukung ekspor ke format Excel (`.xlsx`) dan dokumen cetak rapi (`.pdf`).
 
 ---
 

@@ -1,4 +1,6 @@
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 // List of columns to strictly remove (normalized comparison)
 export const EXCLUDED_COLUMNS_NORMALIZED = [
@@ -223,34 +225,84 @@ export function downloadMergedExcel(
 }
 
 /**
- * Export consolidated data to CSV file
+ * Export consolidated data to PDF file (landscape format)
  */
-export function downloadMergedCsv(
+export function downloadMergedPdf(
   headers: string[],
   rows: (string | number | null | undefined)[][],
   customFileName: string
 ): void {
-  const fullData = [headers, ...rows];
-  const worksheet = XLSX.utils.aoa_to_sheet(fullData);
-  const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4',
+  });
 
   let sanitizedName = (customFileName || 'Hasil_Gabungan_Excel').trim();
   if (sanitizedName.toLowerCase().endsWith('.xlsx')) {
     sanitizedName = sanitizedName.substring(0, sanitizedName.length - 5);
   }
-  if (!sanitizedName.toLowerCase().endsWith('.csv')) {
-    sanitizedName += '.csv';
+  if (!sanitizedName.toLowerCase().endsWith('.pdf')) {
+    sanitizedName += '.pdf';
   }
 
-  const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', sanitizedName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // Header Title
+  const titleText = (customFileName || 'Hasil_Gabungan_Excel').replace(/\.xlsx$/i, '');
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text(titleText, 14, 14);
+
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100);
+  const dateStr = new Date().toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  doc.text(`Waktu Cetak: ${dateStr} | Total: ${rows.length.toLocaleString('id-ID')} Baris`, 14, 19);
+
+  // Table
+  autoTable(doc, {
+    startY: 23,
+    head: [headers],
+    body: rows.map(row => row.map(cell => (cell !== null && cell !== undefined ? String(cell) : '-'))),
+    theme: 'grid',
+    headStyles: {
+      fillColor: [17, 17, 17], // #111111 matching neubrutalism
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 8.5,
+      halign: 'left',
+    },
+    bodyStyles: {
+      fontSize: 8,
+      textColor: [30, 30, 30],
+    },
+    alternateRowStyles: {
+      fillColor: [248, 248, 246],
+    },
+    styles: {
+      cellPadding: 2,
+      overflow: 'linebreak',
+    },
+    margin: { top: 23, left: 14, right: 14, bottom: 14 },
+    didDrawPage: (data) => {
+      // Footer page numbering
+      const str = `Halaman ${data.pageNumber}`;
+      doc.setFontSize(8);
+      doc.setTextColor(140);
+      doc.text(
+        str,
+        doc.internal.pageSize.getWidth() - 25,
+        doc.internal.pageSize.getHeight() - 6
+      );
+    },
+  });
+
+  doc.save(sanitizedName);
 }
 
 /**

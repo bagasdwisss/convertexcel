@@ -7,14 +7,14 @@ import {
   ChevronRight,
   Eye,
   CheckCircle2,
-  FileCheck
+  FileText
 } from 'lucide-react';
 
 interface DataPreviewTableProps {
   headers: string[];
   rows: (string | number | null | undefined)[][];
   onDownload: () => void;
-  onDownloadCsv: () => void;
+  onDownloadPdf: () => void;
   hasFiles: boolean;
 }
 
@@ -22,7 +22,7 @@ export const DataPreviewTable: React.FC<DataPreviewTableProps> = ({
   headers,
   rows,
   onDownload,
-  onDownloadCsv,
+  onDownloadPdf,
   hasFiles,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -114,12 +114,12 @@ export const DataPreviewTable: React.FC<DataPreviewTableProps> = ({
               <span>EXCEL (.XLSX)</span>
             </button>
             <button
-              onClick={onDownloadCsv}
+              onClick={onDownloadPdf}
               className="brutal-btn bg-white hover:bg-zinc-100 text-brutal-dark px-2.5 py-1.5 text-xs font-black uppercase tracking-wider flex items-center gap-1 cursor-pointer"
-              title="Download CSV"
+              title="Download PDF"
             >
-              <FileCheck className="w-3.5 h-3.5" />
-              <span>CSV</span>
+              <FileText className="w-3.5 h-3.5 text-red-600" />
+              <span>PDF</span>
             </button>
           </div>
         </div>
