@@ -145,14 +145,6 @@ export default function App() {
         {/* Top Header & Breadcrumb Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-brutal-dark pb-5">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="brutal-pill text-[10px] bg-brutal-yellow text-brutal-dark border border-brutal-dark">
-                NEO-BRUTALISM EDITION
-              </span>
-              <span className="brutal-pill text-[10px] bg-brutal-green text-brutal-dark border border-brutal-dark">
-                VERCEL OPTIMIZED
-              </span>
-            </div>
             <h2 className="text-2xl md:text-3xl font-black tracking-tight text-brutal-dark">
               Penggabung File Excel Kantor Pertanahan
             </h2>
