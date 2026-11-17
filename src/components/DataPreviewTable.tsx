@@ -16,6 +16,7 @@ interface DataPreviewTableProps {
   onDownload: () => void;
   onDownloadPdf: () => void;
   hasFiles: boolean;
+  duplicateRowIndices?: number[];
 }
 
 export const DataPreviewTable: React.FC<DataPreviewTableProps> = ({
@@ -24,6 +25,7 @@ export const DataPreviewTable: React.FC<DataPreviewTableProps> = ({
   onDownload,
   onDownloadPdf,
   hasFiles,
+  duplicateRowIndices = [],
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -160,13 +162,28 @@ export const DataPreviewTable: React.FC<DataPreviewTableProps> = ({
               ) : (
                 paginatedRows.map((row, rowIdx) => {
                   const globalIdx = (currentPage - 1) * pageSize + rowIdx + 1;
+                  const isDuplicate = duplicateRowIndices.includes(globalIdx);
                   return (
                     <tr
                       key={rowIdx}
-                      className="hover:bg-[#FEFCE8] transition-colors even:bg-zinc-50/70"
+                      className={`transition-colors ${
+                        isDuplicate 
+                          ? 'bg-amber-100/60 hover:bg-amber-200/60' 
+                          : 'hover:bg-[#FEFCE8] even:bg-zinc-50/70'
+                      }`}
                     >
                       <td className="py-2 px-3 text-center font-bold text-zinc-500 border-r border-zinc-200">
-                        {globalIdx}
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span>{globalIdx}</span>
+                          {isDuplicate && (
+                            <span 
+                              title="Data ini memiliki Nomor Hak, Surat Ukur, dan NIB yang identik dengan baris lain"
+                              className="text-[9px] bg-red-100 text-red-700 border border-red-400 px-1 py-0.5 rounded font-black tracking-wider"
+                            >
+                              DUPLIKAT
+                            </span>
+                          )}
+                        </div>
                       </td>
                       {row.map((cell, cellIdx) => (
                         <td

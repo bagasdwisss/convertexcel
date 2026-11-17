@@ -10,11 +10,13 @@ import { DropzoneCard } from './components/DropzoneCard';
 import { StatsBento } from './components/StatsBento';
 import { UploadedFilesList } from './components/UploadedFilesList';
 import { DataPreviewTable } from './components/DataPreviewTable';
+import { DuplicateAlertCard } from './components/DuplicateAlertCard';
 import { 
   parseExcelFile, 
   mergeParsedFiles, 
   downloadMergedExcel, 
   downloadMergedPdf,
+  detectDuplicates,
   ParsedFileResult
 } from './utils/excelMerger';
 
@@ -29,6 +31,11 @@ export default function App() {
   const { headers, rows, totalRows } = useMemo(() => {
     return mergeParsedFiles(parsedFiles);
   }, [parsedFiles]);
+
+  // Duplicate detection for genuine identical Nomor_Hak + Surat_Ukur + NIB
+  const duplicateResult = useMemo(() => {
+    return detectDuplicates(headers, rows);
+  }, [headers, rows]);
 
   // Handle files selected from dropzone or file picker
   const handleFilesSelected = async (fileList: FileList | File[]) => {
@@ -222,6 +229,13 @@ export default function App() {
           </section>
         )}
 
+        {/* Duplicate Detection Alert Banner (Only shown if genuine duplicates exist) */}
+        {duplicateResult.hasDuplicates && (
+          <section>
+            <DuplicateAlertCard duplicateResult={duplicateResult} />
+          </section>
+        )}
+
         {/* Bento Grid Row 4: Live Interactive Data Preview Table */}
         <section>
           <DataPreviewTable
@@ -230,6 +244,7 @@ export default function App() {
             onDownload={handleDownloadExcel}
             onDownloadPdf={handleDownloadPdf}
             hasFiles={parsedFiles.length > 0}
+            duplicateRowIndices={duplicateResult.duplicateRowIndices}
           />
         </section>
       </main>

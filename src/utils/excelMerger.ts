@@ -241,6 +241,104 @@ export function mergeParsedFiles(files: ParsedFileResult[]): {
   };
 }
 
+export interface DuplicateGroup {
+  key: string;
+  nomorHak: string;
+  suratUkur: string;
+  nib: string;
+  count: number;
+  rowIndices: number[]; // 1-based index in the merged table
+}
+
+export interface DuplicateDetectionResult {
+  hasDuplicates: boolean;
+  totalDuplicateRows: number;
+  duplicateGroups: DuplicateGroup[];
+  duplicateRowIndices: number[];
+}
+
+/**
+ * Detects exact duplicates based on Nomor_Hak, Surat_Ukur, and NIB.
+ * Only reports duplicates without modifying or deleting any rows.
+ */
+export function detectDuplicates(
+  headers: string[],
+  rows: (string | number | null | undefined)[][]
+): DuplicateDetectionResult {
+  const normHeaders = headers.map(normalizeHeader);
+  const nomorHakIndex = normHeaders.findIndex(h => h.includes('nomorhak'));
+  const suratUkurIndex = normHeaders.findIndex(h => h.includes('suratukur'));
+  const nibIndex = normHeaders.findIndex(h => h.includes('nib'));
+
+  if (nomorHakIndex === -1 && suratUkurIndex === -1 && nibIndex === -1) {
+    return { hasDuplicates: false, totalDuplicateRows: 0, duplicateGroups: [], duplicateRowIndices: [] };
+  }
+
+  const clean = (val: any) => String(val ?? '').trim();
+  const normVal = (val: any) => clean(val).toLowerCase();
+
+  const map = new Map<string, {
+    nomorHak: string;
+    suratUkur: string;
+    nib: string;
+    rowIndices: number[];
+  }>();
+
+  rows.forEach((row, idx) => {
+    const rawHak = nomorHakIndex !== -1 ? clean(row[nomorHakIndex]) : '';
+    const rawSu = suratUkurIndex !== -1 ? clean(row[suratUkurIndex]) : '';
+    const rawNib = nibIndex !== -1 ? clean(row[nibIndex]) : '';
+
+    const normHak = normVal(rawHak);
+    const normSu = normVal(rawSu);
+    const normNib = normVal(rawNib);
+
+    // Skip if all are empty or only dashes
+    if (!normHak && !normSu && !normNib) return;
+    if ((!normHak || normHak === '-') && (!normNib || normNib === '-')) return;
+
+    // Composite unique key for exact duplicate
+    const key = `${normHak}::${normSu}::${normNib}`;
+
+    if (!map.has(key)) {
+      map.set(key, {
+        nomorHak: rawHak || '-',
+        suratUkur: rawSu || '-',
+        nib: rawNib || '-',
+        rowIndices: [idx + 1],
+      });
+    } else {
+      map.get(key)!.rowIndices.push(idx + 1);
+    }
+  });
+
+  const duplicateGroups: DuplicateGroup[] = [];
+  const duplicateRowIndices: number[] = [];
+  let totalDuplicateRows = 0;
+
+  for (const [key, group] of map.entries()) {
+    if (group.rowIndices.length > 1) {
+      duplicateGroups.push({
+        key,
+        nomorHak: group.nomorHak,
+        suratUkur: group.suratUkur,
+        nib: group.nib,
+        count: group.rowIndices.length,
+        rowIndices: group.rowIndices,
+      });
+      totalDuplicateRows += (group.rowIndices.length - 1);
+      duplicateRowIndices.push(...group.rowIndices);
+    }
+  }
+
+  return {
+    hasDuplicates: duplicateGroups.length > 0,
+    totalDuplicateRows,
+    duplicateGroups,
+    duplicateRowIndices,
+  };
+}
+
 /**
  * Export consolidated data to .xlsx file with formatting and auto column width
  */
