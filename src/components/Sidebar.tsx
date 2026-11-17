@@ -28,18 +28,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isProcessing
 }) => {
   return (
-    <aside className="w-full lg:w-80 xl:w-96 bg-sidebar text-white flex flex-col shrink-0 border-r-2 border-brutal-dark p-5 lg:min-h-screen justify-between z-20">
+    <aside className="w-full lg:w-80 xl:w-96 bg-sidebar text-white flex flex-col shrink-0 border-r-2 border-brutal-dark p-5 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto justify-between z-20">
       <div className="space-y-6">
-        {/* Brand / Logo Area */}
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-brutal-yellow rounded-2xl border-2 border-brutal-dark shadow-brutal flex items-center justify-center text-brutal-dark font-black text-2xl shrink-0">
-            <FileSpreadsheet className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-xl font-black tracking-tight text-white">MERGEXLSX</h1>
-            <p className="text-xs text-zinc-400 font-semibold tracking-wide">
-              Penggabung Excel & Pembersih Kolom
-            </p>
+        {/* Brand / Logo Area - Sticky agar tidak tergulir */}
+        <div className="sticky -top-5 z-30 bg-sidebar pt-5 pb-4 -mx-5 px-5 border-b-2 border-zinc-800 shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-brutal-yellow rounded-2xl border-2 border-brutal-dark shadow-brutal flex items-center justify-center text-brutal-dark font-black text-2xl shrink-0">
+              <FileSpreadsheet className="w-7 h-7" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black tracking-tight text-white">MERGEXLSX</h1>
+              <p className="text-xs text-zinc-400 font-semibold tracking-wide">
+                Penggabung Excel & Pembersih Kolom
+              </p>
+            </div>
           </div>
         </div>
 

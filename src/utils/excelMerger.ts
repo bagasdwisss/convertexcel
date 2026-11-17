@@ -31,6 +31,48 @@ export const DISPLAY_KEPT_COLUMNS = [
   'Tipe_Hak',
 ];
 
+// Priority order for KW: Starts with 4, then 5, then 6, followed by 1, 2, 3
+export const KW_PRIORITY_ORDER: Record<number, number> = {
+  4: 1, // Urutan 1: KW 4
+  5: 2, // Urutan 2: KW 5
+  6: 3, // Urutan 3: KW 6
+  1: 4, // Urutan 4: KW 1
+  2: 5, // Urutan 5: KW 2
+  3: 6, // Urutan 6: KW 3
+};
+
+/**
+ * Extracts the numeric KW value (1 to 6) from a cell.
+ */
+export function extractKwNumber(val: any): number {
+  if (val === null || val === undefined) return 999;
+  const str = String(val).trim().toUpperCase();
+  // Check for KW followed by number, e.g. KW 4, KW4, KW-4, KW.4
+  const kwMatch = str.match(/KW[\s._-]*([1-6])/);
+  if (kwMatch) {
+    return parseInt(kwMatch[1], 10);
+  }
+  // Check if string contains standalone digit 1-6
+  const singleDigitMatch = str.match(/\b([1-6])\b/);
+  if (singleDigitMatch) {
+    return parseInt(singleDigitMatch[1], 10);
+  }
+  const fallback = str.match(/([1-6])/);
+  if (fallback) {
+    return parseInt(fallback[1], 10);
+  }
+  return 999;
+}
+
+/**
+ * Returns the sorting priority weight for a KW value.
+ * Order: 4 (1) -> 5 (2) -> 6 (3) -> 1 (4) -> 2 (5) -> 3 (6) -> other (999)
+ */
+export function getKwPriority(val: any): number {
+  const kwNum = extractKwNumber(val);
+  return KW_PRIORITY_ORDER[kwNum] ?? 999;
+}
+
 export interface ParsedFileResult {
   id: string;
   name: string;
@@ -178,6 +220,20 @@ export function mergeParsedFiles(files: ParsedFileResult[]): {
     }
   }
 
+  // Find KW column index and sort rows: 4 -> 5 -> 6 -> 1 -> 2 -> 3
+  const kwIndex = masterHeaders.findIndex(h => {
+    const norm = normalizeHeader(h);
+    return norm === 'kw' || norm.includes('kualitaswilayah');
+  });
+
+  if (kwIndex !== -1) {
+    mergedRows.sort((a, b) => {
+      const prioA = getKwPriority(a[kwIndex]);
+      const prioB = getKwPriority(b[kwIndex]);
+      return prioA - prioB;
+    });
+  }
+
   return {
     headers: masterHeaders,
     rows: mergedRows,
@@ -246,6 +302,21 @@ export function downloadMergedPdf(
     sanitizedName += '.pdf';
   }
 
+  // Ensure rows are sorted by KW priority: 4 -> 5 -> 6 -> 1 -> 2 -> 3
+  const kwIndex = headers.findIndex(h => {
+    const norm = normalizeHeader(h);
+    return norm === 'kw' || norm.includes('kualitaswilayah');
+  });
+
+  const sortedRows = [...rows];
+  if (kwIndex !== -1) {
+    sortedRows.sort((a, b) => {
+      const prioA = getKwPriority(a[kwIndex]);
+      const prioB = getKwPriority(b[kwIndex]);
+      return prioA - prioB;
+    });
+  }
+
   // Header Title
   const titleText = (customFileName || 'Hasil_Gabungan_Excel').replace(/\.xlsx$/i, '');
   doc.setFontSize(13);
@@ -262,13 +333,13 @@ export function downloadMergedPdf(
     hour: '2-digit',
     minute: '2-digit',
   });
-  doc.text(`Waktu Cetak: ${dateStr} | Total: ${rows.length.toLocaleString('id-ID')} Baris`, 14, 19);
+  doc.text(`Waktu Cetak: ${dateStr} | Total: ${sortedRows.length.toLocaleString('id-ID')} Baris`, 14, 19);
 
   // Table
   autoTable(doc, {
     startY: 23,
     head: [headers],
-    body: rows.map(row => row.map(cell => (cell !== null && cell !== undefined ? String(cell) : '-'))),
+    body: sortedRows.map(row => row.map(cell => (cell !== null && cell !== undefined ? String(cell) : '-'))),
     theme: 'grid',
     headStyles: {
       fillColor: [17, 17, 17], // #111111 matching neubrutalism
